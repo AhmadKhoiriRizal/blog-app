@@ -64,7 +64,7 @@
                         <i class="bi bi-chevron-down dropdown-indicator"></i></a>
                         <ul>
                             @foreach ($categorys as $category)
-                            <li><a href="{{ $category->kategori }}">{{ $category->kategori }}</a></li>
+                            <li><a href="#{{ $category->kategori }}" data-bs-toggle="collapse" role="button" aria-expanded="false">{{ $category->kategori }}</a></li>
                             @endforeach
                         </ul>
                     </li>
@@ -104,93 +104,77 @@
 
             <section class="blog-list px-3 py-5 p-md-5">
                 <div class="container">
-                    @foreach ($apps as $app)
-                    <div class="item mb-5">
-                        <div class="media">
-                            <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="{{ asset('storage/app/'. $app->foto) }}" alt="image" class="img-fluid" width="300">
-                            <div class="media-body">
-                                <h3 class="title mb-1">
-                                    <a href="adobephotoshop.html">{{ $app->judul }}</a>
-                                </h3>
-                                <div class="meta mb-1">
-                                    <span class="date">Published {{ \Carbon\Carbon::parse($app->tanggal_upload)->format('d/m/Y') }}</span>
-                                    <span class="time"> By: {{ $app->nama }}</span>
-                                    {{-- <span class="comment">
-                                    <a href="#">8 comments</a>
-                                    </span> --}}
-                                </div>
-                                <div class="intro" style="justify; text-justify: inter-word;">{{ $app->deskripsi }}</div>
-                                <a class="more-link" href="{{ $app->link_download }}"><button class="btn btn-info">Download</button></a>
-                            </div><!--//media-body-->
-                        </div><!--//media-->
-                    </div><!--//item-->
+                    @php
+                        // Mengelompokkan aplikasi berdasarkan kategori
+                        $appsByCategory = $apps->groupBy('kategori');
+                    @endphp
+
+                    @foreach ($appsByCategory as $kategori => $apps)
+                        <div class="category-group mb-4">
+                            <h2 class="category-title">{{ $kategori }}</h2>
+
+                            @foreach ($apps as $app)
+                                <div class="collapse item mb-5" id="{{ $app->category->kategori }}">
+                                    <div class="media">
+                                        <h3 class="title mb-1">
+                                            <a href="adobephotoshop.html">{{ $app->category->kategori }}</a>
+                                        </h3>
+                                        <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="{{ asset('storage/app/'. $app->foto) }}" alt="image" width="300">
+                                        <div class="media-body">
+                                            <h3 class="title mb-1">
+                                                <a href="adobephotoshop.html">{{ $app->judul }}</a>
+                                            </h3>
+                                            <div class="meta mb-1">
+                                                <span class="date">Published {{ \Carbon\Carbon::parse($app->tanggal_upload)->format('d/m/Y') }}</span>
+                                                <span class="time"> By: {{ $app->nama }}</span>
+                                                {{-- <span class="comment">
+                                                <a href="#">8 comments</a>
+                                                </span> --}}
+                                            </div>
+                                            <div class="intro" style="text-align: justify;">{{ $app->deskripsi }}</div>
+                                            <a class="more-link" href="{{ $app->link_download }}"><button class="btn btn-info">Download</button></a>
+                                        </div><!--//media-body-->
+                                    </div><!--//media-->
+                                </div><!--//item-->
+                            @endforeach
+                        </div><!--//category-group-->
                     @endforeach
+                    @php
+                        // Ambil semua kategori yang unik dari $apps
+                        $uniqueCategories = $apps->unique('category_id');
+                    @endphp
 
-                    {{-- <div class="item mb-5">
-                        <div class="media">
-                            <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="assets/images/blog/mozila.jpg" alt="image">
-                            <div class="media-body">
-                                <h3 class="title mb-1"><a href="mozilafirefox.html">Mozilla Firefox 103.0.2 Offline Installer Terbaru</a></h3>
-                                <div class="meta mb-1"><span class="date">Published 3 months ago</span><span class="time">3 min read</span><span class="comment"><a href="#">26 comments</a></span></div>
-                                <div class="intro">Mozilla Firefox 103.0.2 Offline Installer Terbaru merupkan versi terbaru dan paling stabil dari mozilla firefox yang mana kini dengan engine Quantum yang di klaim 2 kali lebih cepat dan 30 persen penggunaan RAM lebih rendah dari...</div>
-                                <a class="more-link" href="mozilafirefox.html">Read more &rarr;</a>
-                            </div><!--//media-body-->
-                        </div><!--//media-->
-                    </div><!--//item-->
+                        @foreach ($uniqueCategories as $category)
+                            <div class="col-lg-12">
+                            @php
+                                // Ambil satu blog pertama dari kategori saat ini
+                                $app = $apps->where('category_id', $category->category_id)->first();
+                            @endphp
 
-                    <div class="item mb-5">
-                        <div class="media">
-                            <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="assets/images/blog/msoffice.png" alt="image">
-                            <div class="media-body">
-                                <h3 class="title mb-1"><a href="msoffice.html">Microsoft Office 2016 Pro Plus x86/x64 Full Version</a></h3>
-                                <div class="meta mb-1"><span class="date">Published 1 month ago</span><span class="time">8 min read</span><span class="comment"><a href="#">12 comments</a></span></div>
-                                <div class="intro">Dikutip dari Wikipedia, Microsoft Office 2016 Pro Plus rillis final version 22 September 2015.. -Hmm. Menarik nih, software kantor yang paling populer di dunia besutan dari Microsoft ini dibuat berdasarkan Style Windows 10 tersebut kini semakin canggih. Setelah kita mendengar atau bahkan mendapatkan...</div>
-                                <a class="more-link" href="msoffice.html">Read more &rarr;</a>
-                            </div><!--//media-body-->
-                        </div><!--//media-->
-                    </div><!--//item-->
-                    <div class="item mb-5">
-                        <div class="media">
-                            <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="assets/images/blog/wondershare.png" alt="image">
-                            <div class="media-body">
-                                <h3 class="title mb-1"><a href="wondershare.html">Wondershare TunesGo 9.8.3.47 Full</a></h3>
-                                <div class="meta mb-1"><span class="date">Published 2 months ago</span><span class="time">15 min read</span><span class="comment"><a href="#">3 comments</a></span></div>
-                                <div class="intro">Wondershare TunesGo 9.8.3.47 Full Terbaru merupakan sebuah software management file phone baik itu untuk pengguna iOS ( iphone, ipad ) ataupun...</div>
-                                <a class="more-link" href="wondershare.html">Read more &rarr;</a>
-                            </div><!--//media-body-->
-                        </div><!--//media-->
-                    </div><!--//item-->
-
-                    <div class="item mb-5">
-                        <div class="media">
-                            <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="assets/images/blog/adobeilustrator.png" alt="image">
-                            <div class="media-body">
-                                <h3 class="title mb-1"><a href="adobeilustrator.html">Adobe Illustrator CS5 Full Version</a></h3>
-                                <div class="meta mb-1"><span class="date">Published 2 months ago</span><span class="time">10 min read</span><span class="comment"><a href="#">23 comments</a></span></div>
-                                <div class="intro">Adobe Illustrator CS5 Full Version merupakan software untuk membuat gambar dari product adobe
-                                    yang sangat terkenal. apabila...</div>
-                                <a class="more-link" href="adobeilustrator.html">Read more &rarr;</a>
-                            </div><!--//media-body-->
-                        </div><!--//media-->
-                    </div><!--//item-->
-
-                    <div class="item">
-                        <div class="media">
-                            <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="assets/images/blog/idm.jpg" alt="image">
-                            <div class="media-body">
-                                <h3 class="title mb-1"><a href="blog-post.html">Internet Download Manager 6.42 Build 10 Full Terbaru</a></h3>
-                                <div class="meta mb-1"><span class="date">Published 3 months ago</span><span class="time">2 min read</span><span class="comment"><a href="#">1 comment</a></span></div>
-                                <div class="intro">Download IDM Full Crack atau Internet Download Manager 6.42 Build 10 Terbaru merupakan software untuk download file, video ataupun lainya yang sangat populer di dunia. walapun banyak software sejenis yang baru bermunculan, namun...</div>
-                                <a class="more-link" href="blog-post.html">Read more &rarr;</a>
-                            </div><!--//media-body-->
-                        </div><!--//media-->
-                    </div><!--//item--> --}}
-
-                    <nav class="blog-nav nav nav-justified my-5">
-                      <a class="nav-link-prev nav-item nav-link d-none rounded-left" href="#">Previous<i class="arrow-prev fas fa-long-arrow-alt-left"></i></a>
-                      <a class="nav-link-next nav-item nav-link rounded" href="blog-list.html">Next<i class="arrow-next fas fa-long-arrow-alt-right"></i></a>
-                    </nav>
-
+                            <div class="post-entry-1">
+                                <div class="media">
+                                    <h3 class="title mb-1">
+                                        <a href="">{{ $app->category->kategori }}</a>
+                                    </h3>
+                                    <img class="mr-3 img-fluid post-thumb d-none d-md-flex" src="{{ asset('storage/app/'. $app->foto) }}" alt="image" width="300">
+                                    <div class="media-body">
+                                        <h3 class="title mb-1">
+                                            <a href="adobephotoshop.html">{{ $app->judul }}</a>
+                                        </h3>
+                                        <div class="meta mb-1">
+                                            <span class="date">Published {{ \Carbon\Carbon::parse($app->tanggal_upload)->format('d/m/Y') }}</span>
+                                            <span class="time"> By: {{ $app->nama }}</span>
+                                            {{-- <span class="comment">
+                                            <a href="#">8 comments</a>
+                                            </span> --}}
+                                        </div>
+                                        <div class="intro" style="text-align: justify;">{{ $app->deskripsi }}</div>
+                                        <a class="more-link" href="{{ $app->link_download }}"><button class="btn btn-info">Download</button></a>
+                                    </div><!--//media-body-->
+                                </div><!--//media-->
+                            </div><!--//item-->
+                        </div>
+                    @endforeach
                 </div>
             </section>
 
@@ -385,7 +369,7 @@
               <h3 class="aside-title">Categories</h3>
               <ul class="aside-links list-unstyled">
                 @foreach ($categorys as $category)
-                <li><a href="#{{ $category->kategori }}"><i class="bi bi-chevron-right"></i>{{ $category->kategori }}</a></li>
+                <li class="active"><a href="#{{ $category->kategori }}" data-bs-toggle="collapse" role="button" aria-expanded="false"><i class="bi bi-chevron-right"></i>{{ $category->kategori }}</a></li>
                 @endforeach
               </ul>
             </div><!-- End Categories -->
